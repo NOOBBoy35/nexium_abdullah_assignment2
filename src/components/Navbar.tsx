@@ -100,10 +100,10 @@ export default function Navbar({ isNight, onToggleTheme }: NavbarProps) {
             <h2 className="text-2xl font-bold mb-6 text-blue-900 text-center w-full">About SummarizeX</h2>
             <div className="flex flex-col md:flex-row gap-6 w-full mb-6">
               <p className="text-gray-900 font-semibold leading-relaxed flex-1 text-base md:text-lg">
-                👋 Hi, I'm Abdullah Mansoor, a dedicated and curious Computer Science student at the Ghulam Ishaq Khan Institute of Engineering Sciences and Technology (GIKI). With a strong foundation in programming, web development, and artificial intelligence, I've worked on a range of projects involving React, Python, and machine learning.
+                👋 Hi, I&apos;m Abdullah Mansoor, a dedicated and curious Computer Science student at the Ghulam Ishaq Khan Institute of Engineering Sciences and Technology (GIKI). With a strong foundation in programming, web development, and artificial intelligence, I&apos;ve worked on a range of projects involving React, Python, and machine learning.
               </p>
               <p className="text-gray-900 font-semibold leading-relaxed flex-1 text-base md:text-lg">
-                🛠️ This website is part of my internship at Nexium, where I'm learning to build full-stack applications using modern tools like Next.js, Tailwind CSS, Supabase, and MongoDB Atlas. The goal of this project is not just to build a Blog Summariser, but to improve my understanding of clean UI, component-based architecture, and efficient backend integration.
+                🛠️ This website is part of my internship at Nexium, where I&apos;m learning to build full-stack applications using modern tools like Next.js, Tailwind CSS, Supabase, and MongoDB Atlas. The goal of this project is not just to build a Blog Summariser, but to improve my understanding of clean UI, component-based architecture, and efficient backend integration.
               </p>
             </div>
             <div className="flex gap-4 mt-2">

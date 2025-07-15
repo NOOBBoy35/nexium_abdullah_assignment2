@@ -120,7 +120,7 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
   const handleToggleTheme = () => setIsNight((prev: boolean) => !prev);
 
   // --- Shooting Star (Night Only, On Click) ---
-  let shootingStars: { sprite: THREE.Sprite, start: number, duration: number, vx: number, vy: number, lastElapsed: number, glowSprite?: THREE.Sprite }[] = [];
+  const shootingStars: { sprite: THREE.Sprite, start: number, duration: number, vx: number, vy: number, lastElapsed: number, glowSprite?: THREE.Sprite }[] = [];
   function spawnShootingStar(startX?: number, startY?: number) {
     if (!sceneRef.current || !rendererRef.current || !cameraRef.current) return;
     // Create a streak texture
@@ -401,7 +401,6 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
     let celestial: THREE.Group | null = null;
     // Make sun/moon bigger, more round, and move further top left
     const celestialPosition = new THREE.Vector3(-7, 3.2, -2.5); // Move further left
-    const gridRadius = 3; // Increase grid for more roundness
     const cubeSize = 0.22; // Slightly smaller cubes for more detail
     if (isNight) {
       // Pixelated moon (group of cubes)
@@ -492,7 +491,6 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
     const cloudColorsNight = [0xcccccc, 0x444444]; // light gray, dark gray
     const clouds: { group: THREE.Group, pattern: number[][], state: 'normal'|'fadingOut'|'fadingIn', fadeStart: number, baseOpacity: number }[] = [];
     const numClouds = 12; // 12 clouds for both day and night
-    const gridW = 5, gridH = 3;
     // Library of 12 unique, hand-crafted pixel cloud patterns
     const cloudPatterns = [
       [
@@ -770,7 +768,6 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
     // --- Soft Particle Effects (Bokeh/Stars/Orbs) ---
     let particlesGroup: THREE.Group | null = null;
     let particleData: { sprite: THREE.Sprite, speed?: number, bandY?: number, bandZ?: number, type?: string, offset?: number, orb?: boolean }[] = [];
-    const particleCount = isNight ? 220 : 60; // more stars at night
     const orbCount = isNight ? 5 : 0;
     function createParticles() {
       if (particlesGroup) scene.remove(particlesGroup);
@@ -985,14 +982,6 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
     }
     createBubbles();
 
-    // --- Mouse Parallax for Particles ---
-    let mouseX = 0, mouseY = 0;
-    function onPointerMove(e: MouseEvent) {
-      mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
-      mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
-    }
-    window.addEventListener('pointermove', onPointerMove);
-
     // --- Sun Rays (Day Only) ---
     let sunRays: THREE.Sprite | null = null;
     function createSunRays() {
@@ -1078,7 +1067,7 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
           const p = particleData[i];
           if (!isNight) {
             // Day: move rightward, slight vertical drift
-            p.sprite.position.x += p.speed ?? 0;
+            p.sprite.position.x += typeof p.speed === 'number' ? p.speed : 0;
             // Wrap around horizontally
             if (p.sprite.position.x > 4.2) {
               p.sprite.position.x = -4.2;
@@ -1088,7 +1077,9 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
             }
             // Add a little vertical drift for bokeh
             if (p.type === 'bokeh') {
-              p.sprite.position.y = Number(p.bandY ?? 0) + Math.sin(performance.now() * 0.0003 + Number(p.offset ?? 0)) * 0.13;
+              const bandY = typeof p.bandY === 'number' ? p.bandY : 0;
+              const offset = typeof p.offset === 'number' ? p.offset : 0;
+              p.sprite.position.y = bandY + Math.sin(performance.now() * 0.0003 + offset) * 0.13;
             }
           } else {
             // Night: only animate orbs (not stars)
@@ -1409,10 +1400,6 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
     // Cleanup
     return () => {
       window.removeEventListener('resize', handleResize);
-      window.removeEventListener('pointermove', onPointerMove);
-      if (mountRef.current) {
-        mountRef.current.removeEventListener('click', handleSkyClick);
-      }
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
