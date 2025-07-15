@@ -326,6 +326,33 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
     return new THREE.CanvasTexture(canvas);
   }
 
+  // Add above useEffect:
+  const handleMountClick = (e: MouseEvent) => {
+    if (isNight) {
+      spawnShootingStar(e.clientX, e.clientY);
+    } else {
+      spawnInteractiveBubble(e.clientX, e.clientY);
+    }
+  };
+
+  useEffect(() => {
+    const mountNode = mountRef.current;
+    if (!mountNode) return;
+
+    mountNode.addEventListener('click', handleMountClick);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (mountNode) {
+        mountNode.removeEventListener('click', handleMountClick);
+      }
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+      renderer.dispose();
+    };
+  }, [showSummary, interactiveBubbles, shootingStars, spawnInteractiveBubble, spawnShootingStar]);
+
   useEffect(() => {
     const mountNode = mountRef.current;
     if (!mountNode) return;
@@ -1384,7 +1411,7 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
     return () => {
       window.removeEventListener('resize', handleResize);
       if (mountNode) {
-        mountNode.removeEventListener('click', /* your click handler */);
+        mountNode.removeEventListener('click', handleMountClick);
       }
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
