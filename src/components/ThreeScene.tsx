@@ -328,11 +328,15 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
     mountNode.addEventListener('click', handleMountClick);
 
     return () => {
-      if (mountNode) {
-        mountNode.removeEventListener('click', handleMountClick);
+      const mount = mountRef.current; // Copy ref to variable for cleanup
+      if (mount) {
+        mount.removeEventListener('click', handleMountClick);
       }
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
+      }
+      if (mount && rendererRef.current?.domElement) {
+        mount.removeChild(rendererRef.current.domElement);
       }
       rendererRef.current?.dispose();
     };
@@ -1383,15 +1387,15 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
 
     // Cleanup
     return () => {
-      if (mountNode) {
-        mountNode.removeEventListener('click', handleMountClick);
+      const mount = mountRef.current; // Copy ref to variable for cleanup
+      if (mount) {
+        mount.removeEventListener('click', handleMountClick);
       }
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
-      const currentMount = mountRef.current;
-      if (currentMount && renderer.domElement) {
-        currentMount.removeChild(renderer.domElement);
+      if (mount && rendererRef.current?.domElement) {
+        mount.removeChild(rendererRef.current.domElement);
       }
       rendererRef.current?.dispose();
     };

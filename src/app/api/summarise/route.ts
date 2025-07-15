@@ -96,16 +96,23 @@ export async function POST(req: NextRequest) {
       });
       const data = await response.text();
       console.log('LibreTranslate response body:', data);
-      let parsed: any = null;
+      let parsed: unknown = null;
       try {
         parsed = JSON.parse(data);
-      } catch (jsonErr) {
+      } catch {
         return NextResponse.json({ error: 'Translation service unavailable or returned invalid response. Please try again later.' }, { status: 502 });
       }
-      if (!response.ok || !parsed || !parsed.translatedText) {
+      if (
+        !response.ok ||
+        !parsed ||
+        typeof parsed !== 'object' ||
+        parsed === null ||
+        !('translatedText' in parsed) ||
+        typeof (parsed as { translatedText?: unknown }).translatedText !== 'string'
+      ) {
         return NextResponse.json({ error: 'Translation service unavailable or returned invalid response. Please try again later.' }, { status: 502 });
       }
-      urduSummary = parsed.translatedText || '';
+      urduSummary = (parsed as { translatedText: string }).translatedText || '';
     } catch (err) {
       console.error('LibreTranslate translation error:', err);
       return NextResponse.json({ error: 'Failed to translate to Urdu: ' + (err instanceof Error ? err.message : String(err)) }, { status: 500 });
