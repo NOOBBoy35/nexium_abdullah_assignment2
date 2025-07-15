@@ -83,8 +83,10 @@ export async function POST(req: NextRequest) {
     // 2. Translate
     console.log('Summary to translate:', summary);
     let urduSummary = '';
+    // To use a local LibreTranslate server with ngrok for Vercel/cloud, set TRANSLATE_API_URL to your ngrok URL (e.g. https://abc12345.ngrok.io/translate)
+    const TRANSLATE_API_URL = process.env.TRANSLATE_API_URL || 'https://libretranslate.com/translate';
     try {
-      const response = await fetch('https://libretranslate.com/translate', {
+      const response = await fetch(TRANSLATE_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({
@@ -95,6 +97,7 @@ export async function POST(req: NextRequest) {
         }),
       });
       const data = await response.text();
+      console.log('LibreTranslate response status:', response.status);
       console.log('LibreTranslate response body:', data);
       let parsed: unknown = null;
       try {
@@ -110,6 +113,7 @@ export async function POST(req: NextRequest) {
         !('translatedText' in parsed) ||
         typeof (parsed as { translatedText?: unknown }).translatedText !== 'string'
       ) {
+        console.error('LibreTranslate returned error or missing translatedText:', parsed);
         return NextResponse.json({ error: 'Translation service unavailable or returned invalid response. Please try again later.' }, { status: 502 });
       }
       urduSummary = (parsed as { translatedText: string }).translatedText || '';
