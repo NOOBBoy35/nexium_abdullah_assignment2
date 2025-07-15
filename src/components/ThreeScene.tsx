@@ -145,7 +145,7 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
     // Determine start position
     let worldX = -7;
     let worldY = Math.random() * 4.5 + 0.5;
-    let worldZ = -2.1;
+    const worldZ = -2.1;
     if (typeof startX === 'number' && typeof startY === 'number') {
       // Convert screen (client) coordinates to normalized device coordinates (-1 to 1)
       const rect = rendererRef.current.domElement.getBoundingClientRect();
@@ -203,7 +203,7 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
   }
 
   // --- Interactive Bubbles (Day Only, On Click) ---
-  let interactiveBubbles: { sprite: THREE.Sprite, state: 'growing'|'normal'|'popping', growStart: number, popStart: number, maxSize: number, baseY: number, position: THREE.Vector3 }[] = [];
+  const interactiveBubbles: { sprite: THREE.Sprite, state: 'growing'|'normal'|'popping', growStart: number, popStart: number, maxSize: number, baseY: number, position: THREE.Vector3 }[] = [];
   function spawnInteractiveBubble(startX: number, startY: number) {
     if (!sceneRef.current || !rendererRef.current || !cameraRef.current) return;
     // Use the same color palette and texture as background bubbles
@@ -769,7 +769,7 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
 
     // --- Soft Particle Effects (Bokeh/Stars/Orbs) ---
     let particlesGroup: THREE.Group | null = null;
-    let particleData: any[] = [];
+    let particleData: { sprite: THREE.Sprite, speed?: number, bandY?: number, bandZ?: number, type?: string, offset?: number, orb?: boolean }[] = [];
     const particleCount = isNight ? 220 : 60; // more stars at night
     const orbCount = isNight ? 5 : 0;
     function createParticles() {
@@ -915,7 +915,7 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
     let bubblesGroup: THREE.Group | null = null;
     let bubbleData: any[] = [];
     // --- Bubble Pop Splash Particles ---
-    let popParticles: { sprite: THREE.Sprite, vx: number, vy: number, start: number, duration: number }[] = [];
+    const popParticles: { sprite: THREE.Sprite, vx: number, vy: number, start: number, duration: number }[] = [];
     function spawnPopParticles(x: number, y: number, z: number) {
       const count = 4 + Math.floor(Math.random() * 4); // 4-7 particles
       for (let i = 0; i < count; i++) {
@@ -1078,7 +1078,7 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
           const p = particleData[i];
           if (!isNight) {
             // Day: move rightward, slight vertical drift
-            p.sprite.position.x += p.speed;
+            p.sprite.position.x += p.speed ?? 0;
             // Wrap around horizontally
             if (p.sprite.position.x > 4.2) {
               p.sprite.position.x = -4.2;
@@ -1088,7 +1088,7 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
             }
             // Add a little vertical drift for bokeh
             if (p.type === 'bokeh') {
-              p.sprite.position.y = p.bandY + Math.sin(performance.now() * 0.0003 + p.offset) * 0.13;
+              p.sprite.position.y = Number(p.bandY ?? 0) + Math.sin(performance.now() * 0.0003 + Number(p.offset ?? 0)) * 0.13;
             }
           } else {
             // Night: only animate orbs (not stars)
