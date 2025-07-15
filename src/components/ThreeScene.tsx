@@ -1056,7 +1056,7 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
               p.sprite.position.x = -4.2;
               // Randomize y and z within band
               p.sprite.position.y = -1.2 - Math.random() * 1.0;
-              p.sprite.position.z = p.bandZ;
+              p.sprite.position.z = typeof p.bandZ === 'number' ? p.bandZ : 0;
             }
             // Add a little vertical drift for bokeh
             if (p.type === 'bokeh') {
