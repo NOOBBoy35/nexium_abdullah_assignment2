@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
     console.log('Summary to translate:', summary);
     let urduSummary = '';
     try {
-      const response = await fetch('https://translate.argosopentech.com/translate', {
+      const response = await fetch('https://translate.astian.org/translate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({
@@ -94,11 +94,17 @@ export async function POST(req: NextRequest) {
           format: 'text',
         }),
       });
-      console.log('LibreTranslate response status:', response.status);
       const data = await response.text();
       console.log('LibreTranslate response body:', data);
-      if (!response.ok) throw new Error('LibreTranslate error');
-      const parsed = JSON.parse(data);
+      let parsed: any = null;
+      try {
+        parsed = JSON.parse(data);
+      } catch (jsonErr) {
+        return NextResponse.json({ error: 'Translation service unavailable or returned invalid response. Please try again later.' }, { status: 502 });
+      }
+      if (!response.ok || !parsed || !parsed.translatedText) {
+        return NextResponse.json({ error: 'Translation service unavailable or returned invalid response. Please try again later.' }, { status: 502 });
+      }
       urduSummary = parsed.translatedText || '';
     } catch (err) {
       console.error('LibreTranslate translation error:', err);
