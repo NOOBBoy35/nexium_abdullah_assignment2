@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import Navbar from "./Navbar";
 
 interface ThreeSceneProps {
-  onSubmit: (data: { mode: string, value: string }) => void;
+  onSubmit: (data: { mode: "text" | "url"; value: string }) => Promise<void>;
   loading: boolean;
   summary?: string;
   urduSummary?: string;
@@ -1397,12 +1397,12 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
     };
   }, [showSummary, interactiveBubbles, shootingStars, spawnInteractiveBubble, spawnShootingStar]);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (inputMode === 'text' && text.trim()) {
-      onSubmit({ mode: inputMode, value: text.trim() });
+      await onSubmit({ mode: inputMode, value: text.trim() });
     } else if (inputMode === 'url' && url.trim()) {
-      onSubmit({ mode: inputMode, value: url.trim() });
+      await onSubmit({ mode: inputMode, value: url.trim() });
     }
   };
 
