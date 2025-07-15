@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import * as THREE from 'three';
 import Navbar from "./Navbar";
 
@@ -120,8 +120,7 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
   const handleToggleTheme = () => setIsNight((prev: boolean) => !prev);
 
   // --- Shooting Star (Night Only, On Click) ---
-  const shootingStars: { sprite: THREE.Sprite, start: number, duration: number, vx: number, vy: number, lastElapsed: number, glowSprite?: THREE.Sprite }[] = [];
-  function spawnShootingStar(startX?: number, startY?: number) {
+  const spawnShootingStar = useCallback((startX?: number, startY?: number) => {
     if (!sceneRef.current || !rendererRef.current || !cameraRef.current) return;
     // Create a streak texture
     const size = 96;
@@ -169,16 +168,10 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
     // Rotate sprite to match movement direction
     sprite.material.rotation = Math.atan2(vy, vx);
     sceneRef.current.add(sprite);
-    shootingStars.push({
-      sprite,
-      start: performance.now(),
-      duration: 2000 + Math.random() * 600, // slightly shorter duration
-      vx,
-      vy,
-      lastElapsed: 0,
-      glowSprite: undefined
-    });
-  }
+  }, [sceneRef, rendererRef, cameraRef]);
+
+  // Wrap shootingStars in useMemo
+  const shootingStars = useMemo<{ sprite: THREE.Sprite, start: number, duration: number, vx: number, vy: number, lastElapsed: number, glowSprite?: THREE.Sprite }[]>(() => [], []);
 
   // Helper to create a glow sprite
   function createStarGlowSprite() {
@@ -203,8 +196,7 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
   }
 
   // --- Interactive Bubbles (Day Only, On Click) ---
-  const interactiveBubbles: { sprite: THREE.Sprite, state: 'growing'|'normal'|'popping', growStart: number, popStart: number, maxSize: number, baseY: number, position: THREE.Vector3 }[] = [];
-  function spawnInteractiveBubble(startX: number, startY: number) {
+  const spawnInteractiveBubble = useCallback((startX: number, startY: number) => {
     if (!sceneRef.current || !rendererRef.current || !cameraRef.current) return;
     // Use the same color palette and texture as background bubbles
     const colorChoices: [number, number, number][] = [
@@ -235,16 +227,10 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
     sprite.scale.set(0, 0, 1); // start invisible
     sprite.material.opacity = 0.0;
     sceneRef.current.add(sprite);
-    interactiveBubbles.push({
-      sprite,
-      state: 'growing',
-      growStart: performance.now(),
-      popStart: 0,
-      maxSize: Math.random() * 0.85 + 0.65, // match background bubble size
-      baseY: intersection.y,
-      position: intersection.clone()
-    });
-  }
+  }, [sceneRef, rendererRef, cameraRef]);
+
+  // Wrap interactiveBubbles in useMemo
+  const interactiveBubbles = useMemo<{ sprite: THREE.Sprite, state: 'growing'|'normal'|'popping', growStart: number, popStart: number, maxSize: number, baseY: number, position: THREE.Vector3 }[]>(() => [], []);
 
   // Helper to create a soft bokeh/dust texture
   function createBokehTexture(rgb: [number, number, number], size: number = 64) {
@@ -327,13 +313,13 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
   }
 
   // Add above useEffect:
-  const handleMountClick = (e: MouseEvent) => {
+  const handleMountClick = useCallback((e: MouseEvent) => {
     if (isNight) {
       spawnShootingStar(e.clientX, e.clientY);
     } else {
       spawnInteractiveBubble(e.clientX, e.clientY);
     }
-  };
+  }, [isNight, spawnShootingStar, spawnInteractiveBubble]);
 
   useEffect(() => {
     const mountNode = mountRef.current;
@@ -342,16 +328,15 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
     mountNode.addEventListener('click', handleMountClick);
 
     return () => {
-      window.removeEventListener('resize', handleResize);
       if (mountNode) {
         mountNode.removeEventListener('click', handleMountClick);
       }
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
-      renderer.dispose();
+      rendererRef.current?.dispose();
     };
-  }, [showSummary, interactiveBubbles, shootingStars, spawnInteractiveBubble, spawnShootingStar]);
+  }, [handleMountClick, isNight, spawnShootingStar, spawnInteractiveBubble]);
 
   useEffect(() => {
     const mountNode = mountRef.current;
@@ -1396,20 +1381,8 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
 
     animate();
 
-    // Handle window resize
-    const handleResize = () => {
-      if (cameraRef.current) {
-        cameraRef.current.aspect = window.innerWidth / window.innerHeight;
-        cameraRef.current.updateProjectionMatrix();
-      }
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    };
-
-    window.addEventListener('resize', handleResize);
-
     // Cleanup
     return () => {
-      window.removeEventListener('resize', handleResize);
       if (mountNode) {
         mountNode.removeEventListener('click', handleMountClick);
       }
@@ -1420,9 +1393,9 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
       if (currentMount && renderer.domElement) {
         currentMount.removeChild(renderer.domElement);
       }
-      renderer.dispose();
+      rendererRef.current?.dispose();
     };
-  }, [showSummary, interactiveBubbles, shootingStars, spawnInteractiveBubble, spawnShootingStar]);
+  }, [showSummary, interactiveBubbles, shootingStars, spawnInteractiveBubble, spawnShootingStar, handleMountClick, isNight, summary, urduSummary]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
