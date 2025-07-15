@@ -327,7 +327,8 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
   }
 
   useEffect(() => {
-    if (!mountRef.current) return;
+    const mountNode = mountRef.current;
+    if (!mountNode) return;
 
     // Scene setup
     const scene = new THREE.Scene();
@@ -351,10 +352,10 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     rendererRef.current = renderer;
 
-    mountRef.current.appendChild(renderer.domElement);
+    mountNode.appendChild(renderer.domElement);
 
     // --- Shooting Star Click Handler ---
-    mountRef.current.addEventListener('click', (e: MouseEvent) => {
+    mountNode.addEventListener('click', (e: MouseEvent) => {
       if (isNight) {
         spawnShootingStar(e.clientX, e.clientY);
       } else {
@@ -742,22 +743,10 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
       carouselGroup.add(card);
     });
     // --- Particle/Confetti Effects ---
-    let confettiParticles: THREE.Points | null = null;
-    const createConfetti = () => {
-      if (confettiParticles) scene.remove(confettiParticles);
-      const confettiGeometry = new THREE.BufferGeometry();
-      const confettiCount = 120;
-      const confettiPositions = new Float32Array(confettiCount * 3);
-      for (let i = 0; i < confettiCount; i++) {
-        confettiPositions[i * 3] = (Math.random() - 0.5) * 2;
-        confettiPositions[i * 3 + 1] = Math.random() * 2 + 1.2;
-        confettiPositions[i * 3 + 2] = (Math.random() - 0.5) * 2;
-      }
-      confettiGeometry.setAttribute('position', new THREE.BufferAttribute(confettiPositions, 3));
-      const confettiMaterial = new THREE.PointsMaterial({ size: 0.08, color: 0xffffff, vertexColors: false });
-      confettiParticles = new THREE.Points(confettiGeometry, confettiMaterial);
-      scene.add(confettiParticles);
-    };
+    // In the main useEffect, add:
+    // const mountNode = mountRef.current;
+    // and use mountNode in the cleanup function
+    // Add the missing dependencies to the useEffect dependency array
 
     // --- Soft Particle Effects (Bokeh/Stars/Orbs) ---
     let particlesGroup: THREE.Group | null = null;
@@ -1394,6 +1383,9 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
     // Cleanup
     return () => {
       window.removeEventListener('resize', handleResize);
+      if (mountNode) {
+        mountNode.removeEventListener('click', /* your click handler */);
+      }
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
@@ -1403,7 +1395,7 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
       }
       renderer.dispose();
     };
-  }, [loading, summary, urduSummary, isNight]);
+  }, [showSummary, interactiveBubbles, shootingStars, spawnInteractiveBubble, spawnShootingStar]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
