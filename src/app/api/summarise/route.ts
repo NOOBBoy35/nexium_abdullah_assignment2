@@ -56,42 +56,6 @@ function summarizeText(text: string, topN = 3): string {
   }
 }
 
-// --- Helper: Urdu translation using LibreTranslate API ---
-async function translateToUrdu(text: string): Promise<string> {
-  try {
-    const response = await fetch('http://localhost:5000/translate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        q: text,
-        source: 'en',
-        target: 'ur',
-        format: 'text',
-      }),
-    });
-    if (!response.ok) throw new Error('LibreTranslate error');
-    const data: any = await response.json();
-    return data.translatedText || '';
-  } catch (error) {
-    throw new Error(`Failed to translate to Urdu: ${error}`);
-  }
-}
-
-// --- Helper: Save to MongoDB ---
-async function saveToMongo(url: string, text: string, summary: string, urduSummary: string) {
-  try {
-    const client = new MongoClient(MONGODB_URI);
-    await client.connect();
-    const db = client.db(DB_NAME);
-    await db.collection('blogs').insertOne({ url, text, createdAt: new Date() });
-    await db.collection('summaries').insertOne({ url, summary, urduSummary, createdAt: new Date() });
-    await client.close();
-  } catch (error) {
-    console.error('MongoDB save error:', error);
-    // Don't throw error for MongoDB issues - continue without saving
-  }
-}
-
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();

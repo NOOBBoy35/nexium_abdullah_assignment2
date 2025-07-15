@@ -904,7 +904,7 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
 
     // --- Bubbles/Blobs ---
     let bubblesGroup: THREE.Group | null = null;
-    let bubbleData: any[] = [];
+    let bubbleData: { sprite: THREE.Sprite, baseY: number, speedX: number, size: number, state: string, growStart: number, popStart: number }[] = [];
     // --- Bubble Pop Splash Particles ---
     const popParticles: { sprite: THREE.Sprite, vx: number, vy: number, start: number, duration: number }[] = [];
     function spawnPopParticles(x: number, y: number, z: number) {
