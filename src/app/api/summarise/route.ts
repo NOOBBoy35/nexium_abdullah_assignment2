@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
     console.log('Summary to translate:', summary);
     let urduSummary = '';
     try {
-      const response = await fetch('https://translate.astian.org/translate', {
+      const response = await fetch('https://libretranslate.com/translate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({
