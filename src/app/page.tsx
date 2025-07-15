@@ -28,7 +28,7 @@ export default function Home() {
     setUrduSummary('');
 
     try {
-      let payload: any = {};
+      const payload: Record<string, string> = {};
       if (input.mode === 'url') {
         payload.url = input.value;
       } else {

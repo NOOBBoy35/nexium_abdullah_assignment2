@@ -354,11 +354,6 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
     mountRef.current.appendChild(renderer.domElement);
 
     // --- Shooting Star Click Handler ---
-    function handleSkyClick(e: MouseEvent) {
-      if (isNight) {
-        spawnShootingStar(e.clientX, e.clientY);
-      }
-    }
     mountRef.current.addEventListener('click', (e: MouseEvent) => {
       if (isNight) {
         spawnShootingStar(e.clientX, e.clientY);
@@ -746,7 +741,6 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
       card.lookAt(0, 0.7, 0);
       carouselGroup.add(card);
     });
-    let carouselIndex = 0;
     // --- Particle/Confetti Effects ---
     let confettiParticles: THREE.Points | null = null;
     const createConfetti = () => {
@@ -1084,7 +1078,7 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
           } else {
             // Night: only animate orbs (not stars)
             if (p.orb) {
-              let t = now * 0.00012;
+              const t = now * 0.00012;
               p.sprite.position.y += Math.sin(t) * 0.01;
               p.sprite.position.x += Math.cos(t) * 0.01;
             }
