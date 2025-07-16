@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
     }
 
     // ✅ Translation using your Hugging Face Space
-    const HF_SPACE_URL = "https://NOOBBoy69-English_Urdu_translation.hf.space/run/predict";
+    const HF_SPACE_URL = "https://huggingface.co/spaces/NOOBBoy69/English_Urdu_translation/run/predict";
 
     interface HFResponse {
       data?: string[];
@@ -88,7 +88,14 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify({ data: [summary] }),
       });
 
-      const data = await response.json() as HFResponse;
+      let data: HFResponse;
+      try {
+        data = await response.json() as HFResponse;
+      } catch {
+        const text = await response.text();
+        console.error('Non-JSON response from translation API:', text);
+        return NextResponse.json({ error: 'Translation API did not return valid JSON', details: text }, { status: 502 });
+      }
       if (!response.ok || !data.data?.[0]) {
         console.error('HF Space error:', data);
         return NextResponse.json({ error: 'Translation failed or returned invalid result.' }, { status: 502 });
