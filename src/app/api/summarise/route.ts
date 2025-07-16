@@ -74,6 +74,10 @@ export async function POST(req: NextRequest) {
     // ✅ Translation using your Hugging Face Space
     const HF_SPACE_URL = "https://NOOBBoy69-English_Urdu_translation.hf.space/run/predict";
 
+    interface HFResponse {
+      data?: string[];
+    }
+
     let urduSummary = '';
     try {
       const response = await fetch(HF_SPACE_URL, {
@@ -84,7 +88,7 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify({ data: [summary] }),
       });
 
-      const data = await response.json();
+      const data = await response.json() as HFResponse;
       if (!response.ok || !data.data?.[0]) {
         console.error('HF Space error:', data);
         return NextResponse.json({ error: 'Translation failed or returned invalid result.' }, { status: 502 });
