@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
     }
 
     // ✅ Translation using your Hugging Face Space
-    const HF_SPACE_URL = "https://huggingface.co/spaces/NOOBBoy69/English_Urdu_translation/run/predict";
+    const HF_SPACE_URL = "https://noobboy69-english-urdu-translation.hf.space/run/predict";
 
     interface HFResponse {
       data?: string[];
