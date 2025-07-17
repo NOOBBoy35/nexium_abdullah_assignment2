@@ -328,7 +328,7 @@ export default function ThreeScene({ onSubmit, loadingStage, summary, urduSummar
     mountNode.addEventListener('click', handleMountClick);
 
     return () => {
-      const mount = mountRef.current; // Copy ref to variable for cleanup
+      const mount = mountNode; // Use the mountNode variable captured at the top
       if (mount) {
         mount.removeEventListener('click', handleMountClick);
       }
@@ -336,11 +336,7 @@ export default function ThreeScene({ onSubmit, loadingStage, summary, urduSummar
         cancelAnimationFrame(animationRef.current);
       }
       if (mount && rendererRef.current?.domElement && mount.contains(rendererRef.current.domElement)) {
-        try {
-          mount.removeChild(rendererRef.current.domElement);
-        } catch (err) {
-          // Suppress NotFoundError or any DOM removal error
-        }
+        mount.removeChild(rendererRef.current.domElement);
       }
       rendererRef.current?.dispose();
     };
@@ -1391,7 +1387,7 @@ export default function ThreeScene({ onSubmit, loadingStage, summary, urduSummar
 
     // Cleanup
     return () => {
-      const mount = mountRef.current; // Copy ref to variable for cleanup
+      const mount = mountNode; // Use the mountNode variable captured at the top
       if (mount) {
         mount.removeEventListener('click', handleMountClick);
       }
