@@ -15,6 +15,7 @@ export default function Home() {
     function handleClear() {
       setSummary('');
       setUrduSummary('');
+      setLoadingStage(0); // Ensure input is re-enabled after closing summary
     }
     window.addEventListener('clearSummaries', handleClear);
     return () => window.removeEventListener('clearSummaries', handleClear);
