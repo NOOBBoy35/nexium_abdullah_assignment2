@@ -34,7 +34,7 @@ export default function Home() {
       } else {
         payload.text = input.value;
       }
-      const response = await fetch('/api/summarise', {
+      const response = await fetch('https://noobboy69-blog-summariser-api.hf.space/summarise', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
