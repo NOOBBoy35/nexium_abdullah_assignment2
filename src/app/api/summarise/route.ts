@@ -3,6 +3,7 @@ import * as cheerio from 'cheerio';
 import fetch from 'node-fetch';
 import { removeStopwords } from 'stopword';
 import { MongoClient } from 'mongodb';
+import { Client as GradioClient } from '@gradio/client';
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/blog-summariser';
 const DB_NAME = 'blog-summariser';
@@ -72,39 +73,11 @@ export async function POST(req: NextRequest) {
     }
 
     // ✅ Translation using your Hugging Face Space
-    const HF_SPACE_URL = "https://hf.space/embed/NOOBBoy69/English_Urdu_translation/api/predict/";
-
-    interface HFResponse {
-      data?: string[];
-    }
-
     let urduSummary = '';
     try {
-      const response = await fetch(HF_SPACE_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ data: [summary] }),
-      });
-
-      const raw = await response.text();
-      let data: HFResponse = {};
-      try {
-        data = JSON.parse(raw);
-      } catch {
-        console.error('Non-JSON response from translation API:', raw);
-        return NextResponse.json({ error: 'Translation API did not return valid JSON', details: raw }, { status: 502 });
-      }
-      if (!response.ok || !data.data?.[0]) {
-        console.error('HF Space error:', {
-          status: response.status,
-          statusText: response.statusText,
-          data,
-        });
-        return NextResponse.json({ error: 'Translation failed or returned invalid result.', details: data }, { status: 502 });
-      }
-      urduSummary = data.data[0];
+      const client = await GradioClient.connect("NOOBBoy69/English_Urdu_translation");
+      const result = await client.predict("/predict", { text: summary });
+      urduSummary = result.data as string;
     } catch (err) {
       console.error('HF translation error:', err);
       return NextResponse.json({ error: 'Failed to translate to Urdu: ' + (err instanceof Error ? err.message : String(err)) }, { status: 500 });

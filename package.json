@@ -22,6 +22,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@gradio/client": "^1.15.6",
     "@tailwindcss/postcss": "^4",
     "@types/cheerio": "^1.0.0",
     "@types/mongodb": "^4.0.7",
