@@ -1729,7 +1729,7 @@ export default function ThreeScene({ onSubmit, loadingStage, summary, urduSummar
                 </div>
               </div>
               {/* Centered expand/collapse arrow for both paragraphs */}
-              {(typedSummary && typedSummary.split(/(?<=[.!?])\s+/g).length > 2) || (typedUrdu && typedUrdu.split(/(?<=[.!?])\s+/g).length > 2) ? (
+              {typedSummary || typedUrdu ? (
                 <div className="flex justify-center w-full mt-2">
                   <button
                     type="button"
