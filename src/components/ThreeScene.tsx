@@ -1429,10 +1429,10 @@ export default function ThreeScene({ onSubmit, loadingStage, summary, urduSummar
   };
 
   return (
-    <div className="relative w-full min-h-screen">
+    <div className="relative w-full min-h-screen overflow-auto flex flex-col items-center justify-center">
       <Navbar isNight={isNight} onToggleTheme={handleToggleTheme} />
       {/* Three.js Canvas */}
-      <div ref={mountRef} className="absolute inset-0" />
+      <div ref={mountRef} className="fixed inset-0 z-0" style={{ pointerEvents: 'none' }} />
       
       {/* Stylish Nexium Project Badge */}
       <div className="fixed bottom-4 right-4 z-50">
@@ -1498,17 +1498,14 @@ export default function ThreeScene({ onSubmit, loadingStage, summary, urduSummar
       {/* Floating Input Panel (now animates up and shrinks when summary is shown) */}
       <div
         id="input-panel"
-        className={`absolute left-1/2 z-10 transition-all duration-1000 ease-[cubic-bezier(0.4,0,0.2,1)] ${
+        className={`relative z-10 transition-all duration-1000 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col items-center justify-center mx-auto ${
           inputMinimized
-            ? 'top-1/5 -translate-x-1/2 -translate-y-0 scale-90'
-            : 'top-1/2 -translate-x-1/2 -translate-y-1/2 scale-100'
+            ? 'top-1/5 scale-90'
+            : 'top-1/2 scale-100'
         }`}
         style={{
           width: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
+          maxWidth: '720px',
           pointerEvents: 'auto',
         }}
       >
@@ -1752,14 +1749,7 @@ export default function ThreeScene({ onSubmit, loadingStage, summary, urduSummar
         )}
       </div>
 
-      {/* Loading Text */}
-      {loadingStage !== 0 && (
-        <div className="absolute top-1/4 left-1/2 transform -translate-x-1/2 z-10">
-          <p className="text-white/80 text-center text-lg">
-            Analyzing content and generating summary...
-          </p>
-        </div>
-      )}
+      {/* Removed 'Analyzing content and generating summary...' message */}
 
       <style>{`
         .glass-textarea:focus {
