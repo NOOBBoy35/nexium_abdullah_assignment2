@@ -6,7 +6,7 @@ import ThreeScene from '@/components/ThreeScene';
 
 
 export default function Home() {
-  const [loading, setLoading] = useState(false);
+  const [loadingStage, setLoadingStage] = useState<0 | 1 | 2 | 3>(0); // 0=idle, 1=sending, 2=translating, 3=complete
   const [summary, setSummary] = useState<string>('');
   const [urduSummary, setUrduSummary] = useState<string>('');
   const [error, setError] = useState<string>('');
@@ -22,7 +22,7 @@ export default function Home() {
 
   // Accept inputMode and value from ThreeScene
   const handleSubmit = async (input: { mode: 'text'|'url', value: string }) => {
-    setLoading(true);
+    setLoadingStage(1); // Sending to API
     setError('');
     setSummary('');
     setUrduSummary('');
@@ -42,6 +42,8 @@ export default function Home() {
         body: JSON.stringify(payload),
       });
 
+      setLoadingStage(2); // Translating
+
       const data = await response.json();
 
       if (!response.ok) {
@@ -50,10 +52,10 @@ export default function Home() {
 
       setSummary(data.summary);
       setUrduSummary(data.urduSummary);
+      setLoadingStage(3); // Complete
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unexpected error occurred');
-    } finally {
-      setLoading(false);
+      setLoadingStage(0);
     }
   };
 
@@ -61,11 +63,11 @@ export default function Home() {
     <main className="min-h-screen">
       <ThreeScene
         onSubmit={handleSubmit}
-        loading={loading}
+        loadingStage={loadingStage}
         summary={summary}
         urduSummary={urduSummary}
         error={error}
       />
-      </main>
+    </main>
   );
 }

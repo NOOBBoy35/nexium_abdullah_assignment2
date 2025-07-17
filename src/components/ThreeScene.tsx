@@ -6,7 +6,7 @@ import Navbar from "./Navbar";
 
 interface ThreeSceneProps {
   onSubmit: (data: { mode: "text" | "url"; value: string }) => Promise<void>;
-  loading: boolean;
+  loadingStage: 0 | 1 | 2 | 3;
   summary?: string;
   urduSummary?: string;
   error?: string;
@@ -44,7 +44,7 @@ function getFirstLines(text: string, n: number) {
   return lines.slice(0, n).join(' ');
 }
 
-export default function ThreeScene({ onSubmit, loading, summary, urduSummary, error }: ThreeSceneProps) {
+export default function ThreeScene({ onSubmit, loadingStage, summary, urduSummary, error }: ThreeSceneProps) {
   const mountRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -59,7 +59,7 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
   });
 
   // Add state to control minimized input panel
-  const showSummary = !!(summary && urduSummary && !loading);
+  const showSummary = !!(summary && urduSummary && loadingStage !== 1 && loadingStage !== 2);
   const [inputMinimized, setInputMinimized] = useState(false);
   // Typing effect for summary/translation
   const [startTyping, setStartTyping] = useState(false);
@@ -1420,6 +1420,14 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
   // Ref for summary/translation panel
   const summaryRef = useRef<HTMLDivElement>(null);
 
+  // Loading indicators for each stage
+  const renderLoading = () => {
+    if (loadingStage === 1) return <div className="flex justify-center items-center py-4"><span className="loader" /> <span className="ml-2">Sending text to API...</span></div>;
+    if (loadingStage === 2) return <div className="flex justify-center items-center py-4"><span className="loader" /> <span className="ml-2">Translating...</span></div>;
+    if (loadingStage === 3) return <div className="flex justify-center items-center py-4"><span className="loader done" /> <span className="ml-2">Complete!</span></div>;
+    return null;
+  };
+
   return (
     <div className="relative w-full min-h-screen">
       <Navbar isNight={isNight} onToggleTheme={handleToggleTheme} />
@@ -1612,7 +1620,7 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
             </div>
             <button
               type="submit"
-              disabled={loading || inputMinimized}
+              disabled={loadingStage !== 0 || inputMinimized}
               className="w-full flex items-center justify-center gap-3 px-8 py-4 mt-2 rounded-2xl font-extrabold text-lg md:text-xl tracking-wide bg-gradient-to-r from-blue-400 via-purple-500 to-blue-500 text-white shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed gradient-btn"
               style={{
                 boxShadow: '0 2px 24px 0 #a084ff44, 0 1.5px 8px 0 #60aaff33',
@@ -1621,8 +1629,8 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
                 position: 'relative',
               }}
             >
-              {loading ? 'Processing...' : 'Summarize & Translate'}
-              {!loading && (
+              {loadingStage === 1 ? 'Processing...' : loadingStage === 2 ? 'Translating...' : 'Summarize & Translate'}
+              {!loadingStage && (
                 <span style={{display:'inline-block', marginLeft:'0.2em', filter:'drop-shadow(0 0 6px #fff8)'}}>
                   <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-arrow-right">
                     <line x1="5" y1="12" x2="19" y2="12" />
@@ -1638,6 +1646,7 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
               <p className="text-red-200 text-center">{error}</p>
             </div>
           )}
+          {renderLoading()}
         </div>
         {/* Summary/Translation Panel below input, centered, with typing effect */}
         {showSummary && (
@@ -1744,7 +1753,7 @@ export default function ThreeScene({ onSubmit, loading, summary, urduSummary, er
       </div>
 
       {/* Loading Text */}
-      {loading && (
+      {loadingStage !== 0 && (
         <div className="absolute top-1/4 left-1/2 transform -translate-x-1/2 z-10">
           <p className="text-white/80 text-center text-lg">
             Analyzing content and generating summary...
