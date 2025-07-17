@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
     }
 
     // ✅ Translation using your Hugging Face Space
-    const HF_SPACE_URL = "https://noobboy69-english-urdu-translation.hf.space/run/predict";
+    const HF_SPACE_URL = "https://hf.space/embed/NOOBBoy69/English_Urdu_translation/api/predict/";
 
     interface HFResponse {
       data?: string[];
@@ -97,8 +97,12 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Translation API did not return valid JSON', details: raw }, { status: 502 });
       }
       if (!response.ok || !data.data?.[0]) {
-        console.error('HF Space error:', data);
-        return NextResponse.json({ error: 'Translation failed or returned invalid result.' }, { status: 502 });
+        console.error('HF Space error:', {
+          status: response.status,
+          statusText: response.statusText,
+          data,
+        });
+        return NextResponse.json({ error: 'Translation failed or returned invalid result.', details: data }, { status: 502 });
       }
       urduSummary = data.data[0];
     } catch (err) {
