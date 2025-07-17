@@ -336,7 +336,11 @@ export default function ThreeScene({ onSubmit, loadingStage, summary, urduSummar
         cancelAnimationFrame(animationRef.current);
       }
       if (mount && rendererRef.current?.domElement && mount.contains(rendererRef.current.domElement)) {
-        mount.removeChild(rendererRef.current.domElement);
+        try {
+          mount.removeChild(rendererRef.current.domElement);
+        } catch (err) {
+          // Suppress NotFoundError or any DOM removal error
+        }
       }
       rendererRef.current?.dispose();
     };
