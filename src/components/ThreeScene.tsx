@@ -335,7 +335,7 @@ export default function ThreeScene({ onSubmit, loadingStage, summary, urduSummar
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
-      if (mount && rendererRef.current?.domElement) {
+      if (mount && rendererRef.current?.domElement && mount.contains(rendererRef.current.domElement)) {
         mount.removeChild(rendererRef.current.domElement);
       }
       rendererRef.current?.dispose();
